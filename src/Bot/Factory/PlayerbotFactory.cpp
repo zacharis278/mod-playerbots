@@ -2037,44 +2037,53 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
 
         oldItem = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
+        uint8 playerLevel = bot->GetLevel();
+
         int32 desiredQuality;
         float gearLoweringChance;
-        uint8 playerLevel = bot->GetLevel();
+        uint32 gearLevel;
 
         if (playerLevel < 10)
         {
             desiredQuality = ITEM_QUALITY_NORMAL;
             gearLoweringChance = 0.0f;
+            gearLevel = playerLevel;
         }
         else if (playerLevel < 20)
         {
             desiredQuality = ITEM_QUALITY_UNCOMMON;
             gearLoweringChance = 0.6f;
+            gearLevel = playerLevel - 2;
         }
         else if (playerLevel < 30)
         {
             desiredQuality = ITEM_QUALITY_UNCOMMON;
             gearLoweringChance = 0.25f;
+            gearLevel = std::max((uint32)18, (uint32)(playerLevel - 4));
         }
         else if (playerLevel < 40)
         {
             desiredQuality = ITEM_QUALITY_UNCOMMON;
             gearLoweringChance = 0.0f;
+            gearLevel = std::max((uint32)36, (uint32)(playerLevel - 6));
         }
         else if (playerLevel < 50)
         {
             desiredQuality = ITEM_QUALITY_RARE;
             gearLoweringChance = 0.75f;
+            gearLevel = std::max((uint32)44, (uint32)(playerLevel - 8));
         }
         else if (playerLevel < 60)
         {
             desiredQuality = ITEM_QUALITY_RARE;
             gearLoweringChance = 0.4f;
+            gearLevel = playerLevel - 8;
         }
         else
         {
             desiredQuality = itemQuality;
             gearLoweringChance = sPlayerbotAIConfig.randomGearLoweringChance;
+            gearLevel = playerLevel;
         }
 
         if (urand(0, 100) < 100 * gearLoweringChance && desiredQuality > ITEM_QUALITY_NORMAL)
@@ -2082,8 +2091,8 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
 
         do
         {
-            for (uint32 requiredLevel = bot->GetLevel(); requiredLevel > std::max((int32)bot->GetLevel() - delta, 0);
-                 requiredLevel--)
+            for (uint32 requiredLevel = gearLevel; requiredLevel > std::max((int32)gearLevel - delta, 0);
+     requiredLevel--)
             {
                 for (InventoryType inventoryType : GetPossibleInventoryTypeListBySlot((EquipmentSlots)slot))
                 {
