@@ -2065,19 +2065,19 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
         {
             desiredQuality = ITEM_QUALITY_UNCOMMON;
             gearLoweringChance = 0.0f;
-            gearLevel = std::max((uint32)36, (uint32)(playerLevel - 6));
+            gearLevel = playerLevel - 4;
         }
         else if (playerLevel < 50)
         {
             desiredQuality = ITEM_QUALITY_RARE;
             gearLoweringChance = 0.75f;
-            gearLevel = std::max((uint32)44, (uint32)(playerLevel - 8));
+            gearLevel = playerLevel - 4;
         }
         else if (playerLevel < 60)
         {
             desiredQuality = ITEM_QUALITY_RARE;
             gearLoweringChance = 0.4f;
-            gearLevel = playerLevel - 8;
+            gearLevel = playerLevel - 4;
         }
         else
         {
