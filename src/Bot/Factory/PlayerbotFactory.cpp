@@ -2235,13 +2235,61 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
             continue;
         }
 
-        int32 desiredQuality = itemQuality;
-        if (urand(0, 100) < 100 * sPlayerbotAIConfig.randomGearLoweringChance && desiredQuality > ITEM_QUALITY_NORMAL)
+        uint8 playerLevel = bot->GetLevel();
+
+        int32 desiredQuality;
+        float gearLoweringChance;
+        uint32 gearLevel;
+
+        if (playerLevel < 10)
+        {
+            desiredQuality = ITEM_QUALITY_NORMAL;
+            gearLoweringChance = 0.0f;
+            gearLevel = playerLevel;
+        }
+        else if (playerLevel < 20)
+        {
+            desiredQuality = ITEM_QUALITY_UNCOMMON;
+            gearLoweringChance = 0.6f;
+            gearLevel = playerLevel - 2;
+        }
+        else if (playerLevel < 30)
+        {
+            desiredQuality = ITEM_QUALITY_UNCOMMON;
+            gearLoweringChance = 0.25f;
+            gearLevel = std::max((uint32)18, (uint32)(playerLevel - 4));
+        }
+        else if (playerLevel < 40)
+        {
+            desiredQuality = ITEM_QUALITY_UNCOMMON;
+            gearLoweringChance = 0.0f;
+            gearLevel = playerLevel - 4;
+        }
+        else if (playerLevel < 50)
+        {
+            desiredQuality = ITEM_QUALITY_RARE;
+            gearLoweringChance = 0.75f;
+            gearLevel = playerLevel - 4;
+        }
+        else if (playerLevel < 60)
+        {
+            desiredQuality = ITEM_QUALITY_RARE;
+            gearLoweringChance = 0.4f;
+            gearLevel = playerLevel - 4;
+        }
+        else
+        {
+            desiredQuality = itemQuality;
+            gearLoweringChance = sPlayerbotAIConfig.randomGearLoweringChance;
+            gearLevel = playerLevel;
+        }
+
+        if (urand(0, 100) < 100 * gearLoweringChance && desiredQuality > ITEM_QUALITY_NORMAL)
             desiredQuality--;
 
         do
         {
-            for (uint32 requiredLevel = bot->GetLevel(); requiredLevel > uint32(std::max((int32)bot->GetLevel() - delta, 0));
+            for (uint32 requiredLevel = gearLevel; requiredLevel > uint32(std::max((int32)gearLevel - delta, 0));
                  requiredLevel--)
             {
                 for (InventoryType inventoryType : GetPossibleInventoryTypeListBySlot((EquipmentSlots)slot))
@@ -4599,11 +4647,48 @@ void PlayerbotFactory::InitInventoryEquip()
 {
     std::vector<uint32> ids;
 
-    uint32 desiredQuality = itemQuality;
-    if (urand(0, 100) < 100 * sPlayerbotAIConfig.randomGearLoweringChance && desiredQuality > ITEM_QUALITY_NORMAL)
+    uint32 playerLevel = bot->GetLevel();
+    int32 desiredQuality;
+    float gearLoweringChance;
+
+    if (playerLevel < 10)
     {
-        desiredQuality--;
+        desiredQuality = ITEM_QUALITY_NORMAL;
+        gearLoweringChance = 0.0f;
     }
+    else if (playerLevel < 20)
+    {
+        desiredQuality = ITEM_QUALITY_UNCOMMON;
+        gearLoweringChance = 0.6f;
+    }
+    else if (playerLevel < 30)
+    {
+        desiredQuality = ITEM_QUALITY_UNCOMMON;
+        gearLoweringChance = 0.25f;
+    }
+    else if (playerLevel < 40)
+    {
+        desiredQuality = ITEM_QUALITY_UNCOMMON;
+        gearLoweringChance = 0.0f;
+    }
+    else if (playerLevel < 50)
+    {
+        desiredQuality = ITEM_QUALITY_RARE;
+        gearLoweringChance = 0.75f;
+    }
+    else if (playerLevel < 60)
+    {
+        desiredQuality = ITEM_QUALITY_RARE;
+        gearLoweringChance = 0.4f;
+    }
+    else
+    {
+        desiredQuality = itemQuality;
+        gearLoweringChance = sPlayerbotAIConfig.randomGearLoweringChance;
+    }
+
+    if (urand(0, 100) < 100 * gearLoweringChance && desiredQuality > ITEM_QUALITY_NORMAL)
+        desiredQuality--;
 
     ItemTemplateContainer const* itemTemplates = sObjectMgr->GetItemTemplateStore();
     for (auto const& itr : *itemTemplates)
