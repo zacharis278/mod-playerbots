@@ -174,6 +174,7 @@ public:
     // Account type management
     void AssignAccountTypes();
     bool IsAccountType(uint32 accountId, uint8 accountType);
+    bool IsAddClassAccount(uint32 accountId) const;
 
 protected:
     void OnBotLoginInternal(Player* const bot) override;
@@ -181,9 +182,9 @@ protected:
 private:
     RandomPlayerbotMgr() : PlayerbotHolder()
     {
-        this->playersLevel = sPlayerbotAIConfig.randombotStartingLevel;
+        this->playersLevel = sPlayerbotAIConfig.RandomBotStartingLevel;
 
-        if (sPlayerbotAIConfig.enabled || sPlayerbotAIConfig.randomBotAutologin)
+        if (sPlayerbotAIConfig.Enabled || sPlayerbotAIConfig.RandomBotAutologin)
         {
             PlayerbotCommandServer::instance().Start();
         }
@@ -241,12 +242,14 @@ private:
     void RandomTeleport(Player* bot);
     void RandomTeleport(Player* bot, std::vector<WorldLocation>& locs, bool hearth = false);
     uint32 GetZoneLevel(uint16 mapId, float teleX, float teleY, float teleZ);
+    std::vector<WorldLocation> GetPlayerZoneTeleportLocations(std::vector<WorldLocation> const& locs, Player* bot);
     typedef void (RandomPlayerbotMgr::*ConsoleCommandHandler)(Player*);
     std::vector<Player*> players;
 
     // std::map<uint32, std::vector<WorldLocation>> rpgLocsCache;
     std::map<uint32, std::map<uint32, std::vector<WorldLocation>>> rpgLocsCacheLevel;
     std::map<TeamId, std::map<BattlegroundTypeId, std::vector<uint32>>> BattleMastersCache;
+    std::unordered_map<uint32, ObjectGuid::LowType> BattleMasterSpawnIds;
     std::unordered_map<uint32, BotEventCache> eventCache;
     std::unordered_set<uint32> currentBots;
     uint32 playersLevel;
